@@ -1,0 +1,3 @@
+/tmp/ccRQ47xp.o: In function `main':
+main.c:(.text+0x1f): undefined reference to `varianciaVetor'
+collect2: error: ld returned 1 exit status
