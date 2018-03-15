@@ -1,6 +1,4 @@
-struct pto {
-  float x, y;
-};
+
 
 typedef struct pto ponto;
 
