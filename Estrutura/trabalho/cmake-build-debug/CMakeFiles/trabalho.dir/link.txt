@@ -1,1 +1,0 @@
-/usr/bin/gcc -g   CMakeFiles/trabalho.dir/main.c.o CMakeFiles/trabalho.dir/func.c.o  -o trabalho 
