@@ -1,17 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-
-void operacoes() {
-     printf("S0\tS1\tS2\t: Operacao\n");
-     printf("L\tL\tL\t: Clear\n");
-     printf("L\tL\tH\t: B - A\n");
-     printf("L\tH\tL\t: A - B\n");
-     printf("L\tH\tH\t: A + B\n");
-     printf("H\tL\tL\t: A XOR B\n");
-     printf("H\tL\tH\t: A OU B\n");
-     printf("H\tH\tL\t: A E B\n");
-     printf("H\tH\tH\t: PRESET\n");
-}
+#include "func.h"
 
 void menu() {
     int opcao;
@@ -20,6 +9,9 @@ void menu() {
     scanf("%d", &opcao);
 
     switch(opcao) {
+        case 1:
+            novaOp();
+            break;
         case 5:
             operacoes();
             break;
@@ -33,7 +25,7 @@ void menu() {
 }
 
 int main() {
-    printf("ULA");
+    printf("ULA\n");
 
     menu();
     return 0;
