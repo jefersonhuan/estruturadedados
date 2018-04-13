@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jeferson/CLionProjects/Estrutura/menor-valor-lista/main.c
+stdio.h
+-
+stdlib.h
+-
+time.h
+-
+

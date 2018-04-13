@@ -1,0 +1,1 @@
+/usr/bin/gcc -g   CMakeFiles/menor_valor_lista.dir/main.c.o  -o menor_valor_lista 

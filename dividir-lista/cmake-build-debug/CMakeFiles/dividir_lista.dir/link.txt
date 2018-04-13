@@ -1,0 +1,1 @@
+/usr/bin/gcc -g   CMakeFiles/dividir_lista.dir/main.c.o  -o dividir_lista 
