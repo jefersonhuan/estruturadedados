@@ -24,7 +24,7 @@ int main() {
 
         atual->valor = rand() % 100 + 1;
 
-        printf("%d: %d\n", n, atual->valor);
+        printf("%d: %d\n", n + 1, atual->valor);
 
         if(prim == NULL)
             prim = atual;
@@ -37,12 +37,10 @@ int main() {
 
     printf("O menor valor é: %d\n", menorValor()->valor);
 
-    printf("Lista: \n");
     atual = prim;
 
     while(atual != NULL) {
         ult = atual;
-        printf("%d\n", atual->valor);
         atual = atual->prox;
         free(ult);
     }
