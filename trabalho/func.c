@@ -4,13 +4,20 @@
 #include <stdlib.h>
 
 struct op {
-    char *p, *q, *resultado, *flag;
-    operacao* prox;
+    int p, q, resultado, flag;
+    struct op *prox;
+    struct op *ant;
 };
 
 operacao *atual, *ult, *prim;
 
-char flags[][4] = { "000", "001", "010", "011", "100", "101", "110", "111" };
+int flags[] = { 000, 001, 010, 011, 100, 101, 110, 111 };
+
+char *paraString(int valor) {
+    char str[5];
+    sprintf(str, "%d", valor);
+    return str;
+}
 
 void operacoes() {
     printf("1. LLL: Clear\n");
@@ -24,36 +31,49 @@ void operacoes() {
 }
 
 void clear() {
-    atual->resultado = "0000";
+    atual->resultado = 0000;
 }
 
-int validaNibble(char *valor) {
+void preset() {
+    atual->resultado = 1111;
+}
+
+int validaNibble(int valor) {
     int n = 0;
 
-    if(strlen(valor) != 4)
+    char valorStr[10]; // evitar overflow
+    sprintf(valorStr, "%d", valor);
+
+    if(strlen(valorStr) != 4)
         return 0;
 
     for(n; n < 4; n++)
-        if(valor[n] != '1' && valor[n] != '0')
+        if(valorStr[n] != '1' && valorStr[n] != '0')
             return 0;
 }
 
-void mostraLista() {
+void mostraAtual() {
     printf("----------------\n");
-    printf("P: %s\t", atual->p);
-    printf("Q: %s\n", atual->q);
+    printf("P: %04d\t", atual->p);
+    printf("Q: %04d\n", atual->q);
 
-    printf("Flag: %s\n", atual->flag);
-    printf("Resultado: %s\n", atual->resultado);
+    printf("Flag: %03d\n", atual->flag);
+    printf("Resultado: %04d\n", atual->resultado);
+}
+
+void mostraLista() {
+    atual = prim;
+
+    do {
+        mostraAtual();
+        atual = atual->prox;
+    } while(atual != prim);
+
+    printf("\n");
 }
 
 void novaOp() {
-    if(prim == NULL) {
-        prim = malloc(sizeof(operacao));
-        prim->p = prim->q = malloc(20 * sizeof(char));
-        prim->flag = prim->resultado = malloc(4 * sizeof(char));
-        atual = prim;
-    }
+    atual = malloc(sizeof(operacao));
 
     int opcao;
     int correto = 1;
@@ -63,17 +83,19 @@ void novaOp() {
 
     do {
         printf("Valor P: ");
-        scanf("%s", atual->p);
+        scanf("%d", &(atual->p));
     } while(!validaNibble(atual->p));
 
     do {
         printf("Valor Q: ");
-        scanf("%s", atual->q);
+        scanf("%d", &(atual->q));
     } while(!validaNibble(atual->q));
 
     printf("\n");
 
     do {
+        correto = 1;
+
         operacoes();
         printf("Digite a operacao: ");
         scanf("%d", &opcao);
@@ -81,6 +103,9 @@ void novaOp() {
         switch(opcao) {
             case 1:
                 clear();
+                break;
+            case 8:
+                preset();
                 break;
             default:
                 printf("Opcao invalida! Tente novamente!\n");
@@ -92,11 +117,18 @@ void novaOp() {
     atual->flag = flags[opcao - 1];
 
     printf("Resultado: \n");
-    mostraLista();
+    mostraAtual();
     printf("\n");
 
-    if(ult != NULL)
+    if(prim == NULL)
+        prim = atual;
+    else {
+        atual->ant = ult;
         ult->prox = atual;
+    }
+
+    atual->prox = prim;
+    prim->ant = atual;
 
     ult = atual;
 }
