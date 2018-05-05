@@ -13,16 +13,16 @@ lista *prim, *prim2, *atual, *ult;
 
 lista *inicializa();
 void mostraLista(lista *pt);
-void geraLista(lista *pt);
+void geraLista(lista pt);
 
 int main() {
     srand((time) NULL);
 
     printf("Lista 1\n");
-    geraLista(*prim);
+    geraLista(prim);
 
     printf("Lista 2\n");
-    geraLista(*prim2);
+    geraLista(prim2);
 
     atual = prim;
     while(atual != NULL) {
@@ -50,7 +50,7 @@ lista *inicializa() {
         return t;
 }
 
-void geraLista(lista *pt) {
+void geraLista(lista pt) {
     for(int n = 0; n < 6; n++) {
         atual = inicializa();
 
