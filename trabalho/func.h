@@ -5,5 +5,6 @@ typedef struct op operacao;
 
 void operacoes();
 void novaOp();
+void mostraLista();
 
 #endif //TRABALHO_FUNC_H
