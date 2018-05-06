@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "func.h"
+#include "operacoes.h"
 
 void menu() {
     int opcao;

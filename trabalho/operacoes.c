@@ -1,10 +1,10 @@
-#include "func.h"
+#include "operacoes.h"
+#include "helpers.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
 struct op {
-    int p, q, resultado, flag;
+    int a, b, resultado, flag;
     struct op *prox;
     struct op *ant;
 };
@@ -12,12 +12,6 @@ struct op {
 operacao *atual, *ult, *prim;
 
 int flags[] = { 000, 001, 010, 011, 100, 101, 110, 111 };
-
-char *paraString(int valor) {
-    char str[5];
-    sprintf(str, "%d", valor);
-    return str;
-}
 
 void operacoes() {
     printf("1. LLL: Clear\n");
@@ -34,28 +28,36 @@ void clear() {
     atual->resultado = 0000;
 }
 
+void bMinusA() {
+
+}
+
+void aMinusB() {
+
+}
+
+void aPlusB() {
+
+}
+
+void bitPorBit(int op) {
+    int n;
+
+    for(n = 0; n < NIB; n++)
+        if(paraValorPositivo(op, conv.a[n], conv.b[n]))
+            conv.resultado[n] = '1';
+        else
+            conv.resultado[n] = '0';
+}
+
 void preset() {
     atual->resultado = 1111;
 }
 
-int validaNibble(int valor) {
-    int n = 0;
-
-    char valorStr[10]; // evitar overflow
-    sprintf(valorStr, "%d", valor);
-
-    if(strlen(valorStr) != 4)
-        return 0;
-
-    for(n; n < 4; n++)
-        if(valorStr[n] != '1' && valorStr[n] != '0')
-            return 0;
-}
-
 void mostraAtual() {
     printf("----------------\n");
-    printf("P: %04d\t", atual->p);
-    printf("Q: %04d\n", atual->q);
+    printf("A: %04d\t", atual->a);
+    printf("B: %04d\n", atual->b);
 
     printf("Flag: %03d\n", atual->flag);
     printf("Resultado: %04d\n", atual->resultado);
@@ -63,6 +65,11 @@ void mostraAtual() {
 
 void mostraLista() {
     atual = prim;
+
+    if(atual == NULL) {
+        printf("Nenhuma operacao encontrada\n");
+        return;
+    }
 
     do {
         mostraAtual();
@@ -75,21 +82,30 @@ void mostraLista() {
 void novaOp() {
     atual = malloc(sizeof(operacao));
 
-    int opcao;
-    int correto = 1;
+    int opcao = 0;
+    int correto;
 
     printf("Valores: \n");
     printf("[Os valores devem possuir exatamente 4 bits]\n");
 
-    do {
-        printf("Valor P: ");
-        scanf("%d", &(atual->p));
-    } while(!validaNibble(atual->p));
+    /*
+     * o "conv", da struct converter (helpers.h) é utilizado
+     * como intermediador apenas no momento das operações.
+     */
 
     do {
-        printf("Valor Q: ");
-        scanf("%d", &(atual->q));
-    } while(!validaNibble(atual->q));
+        printf("Valor A: ");
+        scanf("%s", &(conv.a));
+    } while(!validaNibble(conv.a));
+
+    atual->a = paraInt(conv.a);
+
+    do {
+        printf("Valor B: ");
+        scanf("%s", &(conv.b));
+    } while(!validaNibble(conv.b));
+
+    atual->b = paraInt(conv.b);
 
     printf("\n");
 
@@ -104,6 +120,20 @@ void novaOp() {
             case 1:
                 clear();
                 break;
+            case 2:
+                bMinusA();
+                break;
+            case 3:
+                aMinusB();
+                break;
+            case 4:
+                aPlusB();
+                break;
+            case 5:
+            case 6:
+            case 7:
+                bitPorBit(opcao);
+                break;
             case 8:
                 preset();
                 break;
@@ -115,6 +145,7 @@ void novaOp() {
     } while(!correto);
 
     atual->flag = flags[opcao - 1];
+    atual->resultado = paraInt(conv.resultado);
 
     printf("Resultado: \n");
     mostraAtual();
