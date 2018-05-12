@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 struct op {
-    int a, b, resultado, flag;
+    int a, b, resultado, flag, cin, cn4;
     struct op *prox;
     struct op *ant;
 };
@@ -33,21 +33,33 @@ void bMinusA() {
 }
 
 void aMinusB() {
-
 }
 
 void aPlusB() {
+    int n, carryOut = 0;
 
+    for(n = 0; n < NIB; n++) {
+        conv.resultado[n] = xor(conv.a[n], conv.b[n]);
+        carryOut = and(conv.a[n], conv.b[n]);
+
+        if(carryOut) {
+            conv.resultado[n] = 0;
+
+            if(n != NIB - 1) {
+                int next = n + 1;
+                conv.a[next] = xor(conv.a[next], 1);
+            }
+        }
+    }
+
+    atual->cn4 = carryOut;
 }
 
 void bitPorBit(int op) {
     int n;
 
     for(n = 0; n < NIB; n++)
-        if(paraValorPositivo(op, conv.a[n], conv.b[n]))
-            conv.resultado[n] = '1';
-        else
-            conv.resultado[n] = '0';
+        conv.resultado[n] = paraValorPositivo(op, conv.a[n], conv.b[n]);
 }
 
 void preset() {
@@ -58,9 +70,9 @@ void mostraAtual() {
     printf("----------------\n");
     printf("A: %04d\t", atual->a);
     printf("B: %04d\n", atual->b);
-
     printf("Flag: %03d\n", atual->flag);
     printf("Resultado: %04d\n", atual->resultado);
+    printf("Cn4: %d\n", atual->cn4);
 }
 
 void mostraLista() {
@@ -81,6 +93,7 @@ void mostraLista() {
 
 void novaOp() {
     atual = malloc(sizeof(operacao));
+    atual->cn4 = 0;
 
     int opcao = 0;
     int correto;
@@ -95,17 +108,13 @@ void novaOp() {
 
     do {
         printf("Valor A: ");
-        scanf("%s", &(conv.a));
-    } while(!validaNibble(conv.a));
-
-    atual->a = paraInt(conv.a);
+        scanf("%d", &(atual->a));
+    } while(!validaNibble(atual->a, &(conv.a)));
 
     do {
         printf("Valor B: ");
-        scanf("%s", &(conv.b));
-    } while(!validaNibble(conv.b));
-
-    atual->b = paraInt(conv.b);
+        scanf("%d", &(atual->b));
+    } while(!validaNibble(atual->b, &(conv.b)));
 
     printf("\n");
 
@@ -145,7 +154,7 @@ void novaOp() {
     } while(!correto);
 
     atual->flag = flags[opcao - 1];
-    atual->resultado = paraInt(conv.resultado);
+    carregaResultado(&(atual->resultado));
 
     printf("Resultado: \n");
     mostraAtual();
