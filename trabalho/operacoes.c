@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 struct op {
-    int a, b, resultado, flag, cin, cn4;
+    int a[NIB], b[NIB], resultado[NIB], flag[FLAG_TAM], cin, ovr;
     struct op *prox;
     struct op *ant;
 };
@@ -14,18 +14,19 @@ operacao *atual, *ult, *prim;
 int flags[] = { 000, 001, 010, 011, 100, 101, 110, 111 };
 
 void operacoes() {
-    printf("1. LLL: Clear\n");
-    printf("2. LLH: B - A\n");
-    printf("3. LHL: A - B\n");
-    printf("4. LHH: A + B\n");
-    printf("5. HLL: A XOR B\n");
-    printf("6. HLH: A OU B\n");
-    printf("7. HHL: A E B\n");
-    printf("8. HHH: PRESET\n");
+    printf("000: Clear\n");
+    printf("001: B - A\n");
+    printf("010: A - B\n");
+    printf("011: A + B\n");
+    printf("100: A XOR B\n");
+    printf("101: A OU B\n");
+    printf("110: A E B\n");
+    printf("111: PRESET\n");
 }
 
-void clear() {
-    atual->resultado = 0000;
+void preenche(int bit) {
+    int n;
+    for(n = 0; n < NIB; n++) atual->resultado[n] = bit;
 }
 
 void bMinusA() {
@@ -39,40 +40,76 @@ void aPlusB() {
     int n, carryOut = 0;
 
     for(n = 0; n < NIB; n++) {
-        conv.resultado[n] = xor(conv.a[n], conv.b[n]);
-        carryOut = and(conv.a[n], conv.b[n]);
+        atual->resultado[n] = xor(atual->a[n], atual->b[n]);
+        carryOut = and(atual->a[n], atual->b[n]);
 
         if(carryOut) {
-            conv.resultado[n] = 0;
+            atual->resultado[n] = 0;
 
             if(n != NIB - 1) {
                 int next = n + 1;
-                conv.a[next] = xor(conv.a[next], 1);
+                atual->a[next] = xor(atual->a[next], 1);
             }
         }
     }
 
-    atual->cn4 = carryOut;
+    atual->ovr = carryOut;
 }
 
 void bitPorBit(int op) {
     int n;
 
     for(n = 0; n < NIB; n++)
-        conv.resultado[n] = paraValorPositivo(op, conv.a[n], conv.b[n]);
+        atual->resultado[n] = paraValorPositivo(op, atual->a[n], atual->b[n]);
 }
 
-void preset() {
-    atual->resultado = 1111;
+int validaInstrucao(long int valor) {
+    int count = 0;
+    long int temp;
+
+    while(valor != 0) {
+        temp = valor % 10;
+        valor /= 10;
+
+        if(temp != 1 && temp != 0) return 0;
+
+        if(count == 0)
+            atual->cin = temp;
+        else if(count > 0 && count <= 3)
+            atual->flag[FLAG_TAM - count] = temp;
+        else if(count > 3 && count <= 7)
+            atual->b[(NIB + 3) - count] = temp;
+        else if(count > 7 && count <= 11)
+            atual->a[(NIB + 7) - count] = temp;
+        else
+            return 0;
+
+        count++;
+
+        if(count > INST_TAM) return 0;
+    }
 }
 
 void mostraAtual() {
     printf("----------------\n");
-    printf("A: %04d\t", atual->a);
-    printf("B: %04d\n", atual->b);
-    printf("Flag: %03d\n", atual->flag);
-    printf("Resultado: %04d\n", atual->resultado);
-    printf("Cn4: %d\n", atual->cn4);
+
+    printf("A:");
+    mostraArray(atual->a, NIB);
+    printf("\t");
+
+    printf("B:");
+    mostraArray(atual->b, NIB);
+    printf("\t");
+
+    printf("Flag:");
+    mostraArray(atual->flag, FLAG_TAM);
+    printf("\n");
+
+    printf("Resultado: ");
+    mostraArray(atual->resultado, NIB);
+    printf("\n");
+
+    printf("Overflow: %d\n", atual->ovr);
 }
 
 void mostraLista() {
@@ -93,68 +130,48 @@ void mostraLista() {
 
 void novaOp() {
     atual = malloc(sizeof(operacao));
-    atual->cn4 = 0;
+    atual->ovr = 0;
 
     int opcao = 0;
-    int correto;
 
-    printf("Valores: \n");
-    printf("[Os valores devem possuir exatamente 4 bits]\n");
-
-    /*
-     * o "conv", da struct converter (helpers.h) é utilizado
-     * como intermediador apenas no momento das operações.
-     */
+    long int inst;
+    printf("Formato da instrução: NIBBLE-NIBBLE-FLAG-CIN\nSem o \"-\"\n");
 
     do {
-        printf("Valor A: ");
-        scanf("%d", &(atual->a));
-    } while(!validaNibble(atual->a, &(conv.a)));
-
-    do {
-        printf("Valor B: ");
-        scanf("%d", &(atual->b));
-    } while(!validaNibble(atual->b, &(conv.b)));
+        printf("Insira os bits da instrução: ");
+        scanf("%ld", &inst);
+    } while(!validaInstrucao(inst));
 
     printf("\n");
 
-    do {
-        correto = 1;
+    opcao = arToInt(atual->flag, FLAG_TAM);
 
-        operacoes();
-        printf("Digite a operacao: ");
-        scanf("%d", &opcao);
-
-        switch(opcao) {
-            case 1:
-                clear();
-                break;
-            case 2:
-                bMinusA();
-                break;
-            case 3:
-                aMinusB();
-                break;
-            case 4:
-                aPlusB();
-                break;
-            case 5:
-            case 6:
-            case 7:
-                bitPorBit(opcao);
-                break;
-            case 8:
-                preset();
-                break;
-            default:
-                printf("Opcao invalida! Tente novamente!\n");
-                correto = 0;
-                break;
-        }
-    } while(!correto);
-
-    atual->flag = flags[opcao - 1];
-    carregaResultado(&(atual->resultado));
+    switch(opcao) {
+        case 000:
+            preenche(0);
+            break;
+        case 001:
+            bMinusA();
+            break;
+        case 010:
+            aMinusB();
+            break;
+        case 011:
+            aPlusB();
+            break;
+        case 100:
+        case 101:
+        case 110:
+            bitPorBit(opcao);
+            break;
+        case 111:
+            preenche(1);
+            break;
+        default:
+            printf("Opcao invalida!\n");
+            novaOp();
+            break;
+    }
 
     printf("Resultado: \n");
     mostraAtual();

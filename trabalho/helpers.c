@@ -4,14 +4,19 @@
 #include <stdlib.h>
 #include <math.h>
 
-int paraInt(char *valor) {
-    return strtol(valor, NULL, 10);
+int arToInt(int *source, int tam) {
+    int n, r = 0;
+    for(n = 0; n < tam; n++) {
+        r = r + source[n] * (int)pow(10, n);
+    }
+
+    return r;
 }
 
-void carregaResultado(int *valor) {
+void mostraArray(int *source, int tam) {
     int n;
-    for(n = 0; n < NIB; n++) {
-        *valor = *valor + conv.resultado[n] * (int)pow(10, n);
+    for(n = 0; n < tam; n++) {
+        printf("%d", source[n]);
     }
 }
 
@@ -46,11 +51,11 @@ int or(int a, int b) {
 
 int paraValorPositivo(int op, int a, int b) {
     switch(op) {
-        case 5: // operacao XOR
+        case 100: // operacao XOR
             return xor(a, b);
-        case 6: // operacao OR
+        case 101: // operacao OR
             return or(a, b);
-        case 7: // operacao AND
+        case 110: // operacao AND
             return and(a, b);
         default:
             return 0;
