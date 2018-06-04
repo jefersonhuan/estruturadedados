@@ -11,7 +11,7 @@ struct op {
 
 operacao *atual, *ult, *prim;
 
-int flags[] = { 000, 001, 010, 011, 100, 101, 110, 111 };
+int binParaComp[] = { 0, 0, 0, 1 };
 
 void operacoes() {
     printf("000: Clear\n");
@@ -29,31 +29,40 @@ void preenche(int bit) {
     for(n = 0; n < NIB; n++) atual->resultado[n] = bit;
 }
 
-void bMinusA() {
+int sum(int p[NIB], int q[NIB], int cin) {
+    int n, carryOut = cin;
+    int a, b;
 
+    for(n = NIB - 1; n >= 0; n--) {
+        a = p[n];
+        b = q[n];
+
+        atual->resultado[n] = ((a ^ b) ^ carryOut);
+        carryOut = ((a & b) | (a & carryOut)) | (b & carryOut);
+    }
+
+    return carryOut;
+}
+
+void invert(int val[]) {
+    int n;
+    for(n = 0; n < NIB; n++) atual->resultado[n] = !val[n];
+}
+
+void bMinusA() {
+    invert(atual->a);
+    sum(atual->resultado, binParaComp, 0);
+    sum(atual->b, atual->resultado, atual->cin);
 }
 
 void aMinusB() {
+    invert(atual->b);
+    sum(atual->resultado, binParaComp, 0);
+    sum(atual->a, atual->resultado, atual->cin);
 }
 
 void aPlusB() {
-    int n, carryOut = 0;
-
-    for(n = 0; n < NIB; n++) {
-        atual->resultado[n] = xor(atual->a[n], atual->b[n]);
-        carryOut = and(atual->a[n], atual->b[n]);
-
-        if(carryOut) {
-            atual->resultado[n] = 0;
-
-            if(n != NIB - 1) {
-                int next = n + 1;
-                atual->a[next] = xor(atual->a[next], 1);
-            }
-        }
-    }
-
-    atual->ovr = carryOut;
+    atual->ovr = sum(atual->a, atual->b, atual->cin);
 }
 
 void bitPorBit(int op) {
@@ -85,25 +94,25 @@ int validaInstrucao(long int valor) {
             return 0;
 
         count++;
-
-        if(count > INST_TAM) return 0;
     }
 }
 
 void mostraAtual() {
     printf("----------------\n");
 
-    printf("A:");
+    printf("A: ");
     mostraArray(atual->a, NIB);
     printf("\t");
 
-    printf("B:");
+    printf("B: ");
     mostraArray(atual->b, NIB);
+    printf("\n");
+
+    printf("Flag: ");
+    mostraArray(atual->flag, FLAG_TAM);
     printf("\t");
 
-    printf("Flag:");
-    mostraArray(atual->flag, FLAG_TAM);
-    printf("\n");
+    printf("CIN: %d\n", atual->cin);
 
     printf("Resultado: ");
     mostraArray(atual->resultado, NIB);
@@ -120,10 +129,15 @@ void mostraLista() {
         return;
     }
 
-    do {
+    int count = 0;
+
+    while(atual != NULL) {
+        printf("\n");
+        count++;
+        printf("%dº registro: \n", count);
         mostraAtual();
         atual = atual->prox;
-    } while(atual != prim);
+    }
 
     printf("\n");
 }
@@ -147,16 +161,16 @@ void novaOp() {
     opcao = arToInt(atual->flag, FLAG_TAM);
 
     switch(opcao) {
-        case 000:
+        case 0:
             preenche(0);
             break;
-        case 001:
+        case 1:
             bMinusA();
             break;
-        case 010:
+        case 10:
             aMinusB();
             break;
-        case 011:
+        case 11:
             aPlusB();
             break;
         case 100:
@@ -184,8 +198,68 @@ void novaOp() {
         ult->prox = atual;
     }
 
-    atual->prox = prim;
-    prim->ant = atual;
+    atual->prox = NULL;
 
     ult = atual;
+}
+
+void remover() {
+    mostraLista();
+
+    int reg, count, enc = 0;
+    printf("Digite o número do registro a ser removido: ");
+    scanf("%d", &reg);
+
+    count = 0;
+    atual = prim;
+
+    while(atual != NULL) {
+        count++;
+
+        if(count == reg) {
+            printf("Registro encontrado!\n");
+            if(atual->ant != NULL) atual->ant->prox = atual->prox;
+            if(atual->prox != NULL) atual->prox->ant = atual->ant;
+            enc = 1;
+
+            if(prim == atual) prim = atual->prox;
+
+            free(atual);
+
+            printf("Registro removido com sucesso!\n");
+
+            break;
+        }
+
+        atual = atual->prox;
+    }
+
+    if(!enc) printf("Registro não encontrado\n");
+}
+
+void ordenar() {
+    int troca = 0;
+    int a, b;
+
+    while(atual != NULL) {
+        a = arToInt(atual->resultado, NIB);
+        b = arToInt(ult->resultado, NIB);
+
+        if(b > a) {
+            ult->ant->prox = atual;
+            atual->ant = ult->ant;
+
+
+
+            troca = 1;
+        }
+
+        ult = atual;
+        atual = atual->prox;
+
+        if(troca) {
+            atual = ult = prim;
+            troca = 0;
+        }
+    }
 }

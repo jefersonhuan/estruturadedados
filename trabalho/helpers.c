@@ -6,9 +6,8 @@
 
 int arToInt(int *source, int tam) {
     int n, r = 0;
-    for(n = 0; n < tam; n++) {
-        r = r + source[n] * (int)pow(10, n);
-    }
+    for(n = 0; n < tam; n++)
+        r = 10 * r + source[n];
 
     return r;
 }
@@ -20,25 +19,8 @@ void mostraArray(int *source, int tam) {
     }
 }
 
-int validaNibble(int valor, int *receiver) {
-    int count = 0, temp = valor;
-
-    while(valor != 0) {
-        temp = valor % 10;
-        valor /= 10;
-
-        receiver[count] = temp;
-
-        if(temp != 1 && temp != 0) return 0;
-
-        count++;
-    }
-
-    if(count > 4) return 0;
-}
-
 int xor(int a, int b) {
-    return a ^ b;
+    return a + b;
 }
 
 int and(int a, int b) {

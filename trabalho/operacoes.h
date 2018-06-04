@@ -6,5 +6,7 @@ typedef struct op operacao;
 void operacoes();
 void novaOp();
 void mostraLista();
+void remover();
+void ordenar();
 
 #endif //TRABALHO_OPERACOES_H

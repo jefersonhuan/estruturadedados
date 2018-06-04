@@ -5,7 +5,6 @@
 #define FLAG_TAM 3
 #define INST_TAM 12
 
-int validaNibble(int valor, int *receiver);
 int arToInt(int *source, int tam);
 void mostraArray(int *source, int tam);
 int paraValorPositivo(int op, int a, int b);
